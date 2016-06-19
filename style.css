@@ -16,8 +16,18 @@
 .big_panel {
     height: 100vh;
     background-color: darkorange;
+    position: relative;
 }
-
+#left_column {
+    background-color: white;
+    margin-left: 30%;
+    width: 20%;
+    float: left;
+}
+#right_column {
+    background-color: black;
+    width: 20%;
+}
 #bottom {
     background-color: orangered;
 }
