@@ -2,6 +2,7 @@ from flask import Flask
 from flask import request, redirect, render_template
 import requests, time
 import re
+from lxml import html
 
 app = Flask(__name__)
 
