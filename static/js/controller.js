@@ -14,9 +14,8 @@ var slided = (function(){
     };
 })();
 
-function pageDown(event) {
-    var key = event.keyCode;
-    if(key == 13 && !slided.get()) {
+function pageDown() {
+    if(!slided.get()) {
        var height = "-=" + $('#top').height() + "px";
         $('#top').animate({
             'top' : height
@@ -28,6 +27,13 @@ function pageDown(event) {
     }
 }
 
+function checkUrlEntered(){
+    var urlEntered = $('#iovanaslide');
+    if(urlEntered.html()==="url is valid"){
+        pageDown();
+    }
+}
+
     $(document).ready(function(){
-        
+        setInterval(checkUrlEntered(), 17);
     });

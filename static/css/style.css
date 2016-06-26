@@ -19,15 +19,49 @@
     position: relative;
 }
 #left_column {
-    background-color: white;
     margin-left: 30%;
+    margin-top: 15%;
+    height: 40%;
     width: 20%;
     float: left;
+    border-right: solid 1px white;
 }
 #right_column {
-    background-color: black;
     width: 20%;
+    margin-top: 15%;
+    height: 40%;
 }
+
+.column_header {
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border-bottom: solid 1px white;
+    width: 90%;
+    margin-left: 5%;
+}
+.column_list {
+    list-style-position: inside;
+}
+
+#left_column_list {
+    width: 80%;
+    margin-left: 10%;
+    margin-top: 3%;
+    height: 97%;
+}
+
+#right_column_list {
+    width: 80%;
+    margin-left: 10%;
+    margin-top: 3%;
+    height: 97%;
+}
+
+.column_list_item {
+    height: 20px;
+}
+
 #bottom {
     background-color: orangered;
 }
