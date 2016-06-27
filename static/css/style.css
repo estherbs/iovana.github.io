@@ -40,8 +40,10 @@
     width: 90%;
     margin-left: 5%;
 }
+
 .column_list {
     list-style-position: inside;
+    list-style-type: none;
 }
 
 #left_column_list {

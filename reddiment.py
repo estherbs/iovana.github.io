@@ -1,7 +1,7 @@
 from flask import Flask
 from flask import request, redirect, render_template
 import requests, time, string
-import re
+import re, csv, operator
 from lxml import html
 
 app = Flask(__name__)
@@ -11,10 +11,12 @@ app = Flask(__name__)
 def index():
     if request.method == 'POST':
         form_data = request.form['url']
-        check_url(form_data, 5)
-        return render_template('main.html', slide="url is valid")
+        arr = check_url(form_data, 5)
+        return render_template('main.html', slide="url is valid", pos1=arr[0], pos2=arr[1], pos3=arr[2], pos4=arr[3],
+                               pos5=arr[4], pos6=arr[5], pos7=arr[6], pos8=arr[7], pos9=arr[8], pos10=arr[9],
+                               neg1=arr[10], neg2=arr[11], neg3=arr[12], neg4=arr[13], neg5=arr[14], neg6=arr[15],
+                               neg7=arr[16], neg8=arr[17], neg9=arr[18], neg10=arr[19])
     return render_template('main.html', slide="")
-
 
 def parse_page(name):
     raw_html = html.fromstring(name.content)
@@ -28,8 +30,46 @@ def parse_page(name):
     commentsnolines = commentsnopunctuation.replace("\n", " ")
     ' '.join(commentsnolines.split())
     stringarr = commentsnolines.split(" ")
-    print(stringarr)
-    return 0
+    for s in stringarr:
+        s = s.lower()
+    return hashmapfunction(stringarr)
+
+def importcsv(filename):
+    with open(filename, 'rU') as f:
+        wordraw = f.readline()
+        words = wordraw.split(",")
+        new_dict = {}
+        for word in words:
+            new_dict[word] = 0
+        return new_dict
+
+def hashmapfunction(stringarr):
+    positivehashmap = importcsv('positive-words.csv')
+    negativehashmap = importcsv('negative-words.csv')
+    for word in stringarr:
+        if word in positivehashmap.keys():
+            positivehashmap[word] += 1
+        elif word in negativehashmap.keys():
+            negativehashmap[word] += 1
+    sorted_positivehashmap = sorted(positivehashmap.items(), key = operator.itemgetter(1), reverse=True)
+    sorted_negativehashmap = sorted(negativehashmap.items(), key = operator.itemgetter(1), reverse=True)
+    toptenpos = topten(sorted_positivehashmap)
+    toptenneg = topten(sorted_negativehashmap)
+    sortedwords = toptenpos + toptenneg
+    print(sortedwords)
+    return sortedwords
+
+def topten(arr):
+    i = 0
+    finalarr = []
+    while i < 10:
+        if len(arr) > i:
+            mypair = arr[i]
+            finalarr.append(str(mypair[1]) + " - " + mypair[0].capitalize())
+        else:
+            finalarr.append("N/A")
+        i += 1
+    return finalarr
 
 
 def check_url(url, timeout):
@@ -39,7 +79,7 @@ def check_url(url, timeout):
         print(page_name.status_code)
         if page_name.status_code == requests.codes.ok:
             print('website exists ' + url)
-            parse_page(page_name)
+            return parse_page(page_name)
         else:
             if timeout > 0:
                 print('no website here ' + url + ' trying again...')
