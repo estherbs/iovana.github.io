@@ -1,7 +1,6 @@
 from flask import Flask
-from flask import request, redirect, render_template
-import requests, time, string
-import re, csv, operator
+from flask import request, render_template
+import requests, time, string, re, operator
 from lxml import html
 
 app = Flask(__name__)
@@ -11,29 +10,38 @@ app = Flask(__name__)
 def index():
     if request.method == 'POST':
         form_data = request.form['url']
-        arr = check_url(form_data, 5)
+        word_list = check_url(form_data, 5)
+        print(word_list)
         return render_template('main.html', slide="url is valid",
-                               pos1=arr[0], pos2=arr[1], pos3=arr[2], pos4=arr[3],
-                               pos5=arr[4], pos6=arr[5], pos7=arr[6], pos8=arr[7], pos9=arr[8], pos10=arr[9],
-                               neg1=arr[10], neg2=arr[11], neg3=arr[12], neg4=arr[13], neg5=arr[14], neg6=arr[15],
-                               neg7=arr[16], neg8=arr[17], neg9=arr[18], neg10=arr[19], percentage=arr[20])
+                               pos1=word_list[0], pos2=word_list[1], pos3=word_list[2], pos4=word_list[3],
+                               pos5=word_list[4], pos6=word_list[5], pos7=word_list[6], pos8=word_list[7],
+                               pos9=word_list[8], pos10=word_list[9],neg1=word_list[10], neg2=word_list[11],
+                               neg3=word_list[12], neg4=word_list[13], neg5=word_list[14], neg6=word_list[15],
+                               neg7=word_list[16], neg8=word_list[17], neg9=word_list[18], neg10=word_list[19],
+                               percentage=word_list[20])
     return render_template('main.html', slide="")
 
+
+# Scrape comments with xpath, find element with data-type comment, then find child with class md and then scrape the
+# text within the <p></p> elements
+# Strip the comments of all punctuation, separate them by space, lower case all words and split into an array
+#
 def parse_page(name):
     raw_html = html.fromstring(name.content)
     comments = raw_html.xpath('//div[@data-type="comment"]//div[@class="md"]//text()')
-    commentstring = ""
+    comment_string = ""
     for comment in comments:
-        commentstring += comment
-    commentdotnospace = commentstring.replace(".", " ")
+        comment_string += comment
+    comment_space_nodot = comment_string.replace(".", " ")
     exclude = set(string.punctuation)
-    commentsnopunctuation = ''.join(ch for ch in commentdotnospace if ch not in exclude)
-    commentsnolines = commentsnopunctuation.replace("\n", " ")
-    ' '.join(commentsnolines.split())
-    stringarr = commentsnolines.split(" ")
-    for s in stringarr:
-        s = s.lower()
-    return hashmapfunction(stringarr)
+    comments_no_punctuation = ''.join(ch for ch in comment_space_nodot if ch not in exclude)
+    comments_nolines = comments_no_punctuation.replace("\n", " ")
+    ' '.join(comments_nolines.split())
+    string_arr = comments_nolines.split(" ")
+    for s in string_arr:
+        s.lower()
+    return hashmapfunction(string_arr)
+
 
 def importcsv(filename):
     with open(filename, 'rU') as f:
@@ -44,16 +52,17 @@ def importcsv(filename):
             new_dict[word] = 0
         return new_dict
 
+
 def hashmapfunction(stringarr):
-    positivehashmap = importcsv('positive-words.csv')
-    negativehashmap = importcsv('negative-words.csv')
+    positive_hashmap = importcsv('positive-words.csv')
+    negative_hashmap = importcsv('negative-words.csv')
     for word in stringarr:
-        if word in positivehashmap.keys():
-            positivehashmap[word] += 1
-        elif word in negativehashmap.keys():
-            negativehashmap[word] += 1
-    sorted_positivehashmap = sorted(positivehashmap.items(), key = operator.itemgetter(1), reverse=True)
-    sorted_negativehashmap = sorted(negativehashmap.items(), key = operator.itemgetter(1), reverse=True)
+        if word in positive_hashmap.keys():
+            positive_hashmap[word] += 1
+        elif word in negative_hashmap.keys():
+            negative_hashmap[word] += 1
+    sorted_positivehashmap = sorted(positive_hashmap.items(), key = operator.itemgetter(1), reverse=True)
+    sorted_negativehashmap = sorted(negative_hashmap.items(), key = operator.itemgetter(1), reverse=True)
     total_positive = total(sorted_positivehashmap)
     total_negative = total(sorted_negativehashmap)
     total_all = total_positive + total_negative
@@ -92,7 +101,7 @@ def topten(arr):
 
 
 def check_url(url, timeout):
-    var = "(https://www.)?reddit.com\/r\/[a-z]+\/(comments)\/.*"
+    var = "(https://www.)?reddit.com\/r\/[a-zA-Z_]+\/(comments)\/.*"
     if re.search(var, url):
         page_name = requests.get(url)
         print(page_name.status_code)
@@ -115,7 +124,5 @@ def check_url(url, timeout):
 def submit():
     form_data = request.form['url']
     check_url(form_data, 5)
-    # return redirect("/")
-
 
 app.run()

@@ -2,6 +2,7 @@
  * Created by Iovana on 18/06/2016.
  */
 
+// prevent value from being globally accessible
 var slided = (function(){
     var slid = false;
     return {
@@ -14,6 +15,7 @@ var slided = (function(){
     };
 })();
 
+// animate page to slide down
 function pageDown() {
     if(!slided.get()) {
        var height = "-=" + $('#top').height() + "px";
@@ -27,13 +29,17 @@ function pageDown() {
     }
 }
 
+/*
+   Check if the url entered is set to valid and call pageDown() to animate page.
+   Set the colour of the bottom class according to the percent, where percent is the percentage of negative words
+   in the top 10 most found words.
+*/
 function checkUrlEntered(){
     var urlEntered = $('#iovanaslide');
     if(urlEntered.html()==="url is valid"){
         pageDown();
     }
     var percent = $('#percentage_bar').html();
-    // percent = (percent.trim) ? percent.trim() : percent.replace(/^\s+/,'');
     if(percent != ''){
         var x = parseFloat(percent);
         var yr = 255 + (0.875 * x) - (0.01575 * Math.pow(x, 2));
